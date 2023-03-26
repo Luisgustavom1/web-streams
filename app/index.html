@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Streams \o/</title>
+
+    <style>
+        .container {
+            padding: 24px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+           border: 1px solid #ccc;
+           border-radius: 4px; 
+           padding: 16px;
+        }
+
+        .card .link {
+            text-decoration: none;
+            color: rgb(83, 83, 83);
+        }
+        .card .link:hover {
+            color: rgba(83, 83, 83, 0.6);
+            transition: color 250ms ease-out;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="start">Start</button>
+        <button id="stop">Stop</button>
+    </div>
+
+    <div class="container">
+        <main id="cards" class="content"></main>
+    </div>
+
+    <script src="./index.js" type="module"></script>
+</body>
+</html>
