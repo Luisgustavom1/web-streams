@@ -65,7 +65,7 @@ createServer(async (req, res) => {
             }
         )
     } catch (error) {
-        if (!error.message.includes("abort")) return;
+        if (error.message.includes("abort")) return;
         console.log("Something happened", error);
     }
 })
