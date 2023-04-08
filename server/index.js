@@ -43,24 +43,22 @@ createServer(async (req, res) => {
         await Readable.toWeb(readStream)
         .pipeThrough(
             Transform.toWeb(csvtojson({
-                headers: ['title', 'description', 'url'],
-                output: 'line'
+                headers: ['title', 'description', 'year', 'type', 'rate_start', 'votes', 'status', 'followers', 'episodes', 'genders', 'url_anime', 'image']
             }))
         )
         .pipeThrough(
             new TransformStream({
                 async transform(jsonLine, controller) {
-                    const data = Buffer.from(jsonLine);
-                    const csvFields = data.toString().split(',');
-                    const lineBytesLength = data.length;
+                    const data = JSON.parse(Buffer.from(jsonLine));
                     const message = JSON.stringify({
-                        title: csvFields[0],
-                        description: csvFields[1],
-                        url: csvFields[10]         
+                        title: data.title,
+                        description: data.description,
+                        url: data.url_anime         
                     }).concat("\n");
                     counter++;
                     await setTimeout(1000);
                     controller.enqueue(message);
+                    const lineBytesLength = Buffer.from(Object.values(data).join(',') + "\n").length + 1;
                     currentPosition += lineBytesLength;
                 }
             })
