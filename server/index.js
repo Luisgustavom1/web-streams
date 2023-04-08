@@ -7,8 +7,10 @@ import { Readable, Transform, Writable } from 'node:stream';
 import byteSize from 'byte-size';
 import csvtojson from 'csvtojson';
 import { TransformStream } from 'node:stream/web';
+import { setTimeout } from 'node:timers/promises'
 
 const PORT = 3000
+let currentPosition = 0;
 
 createServer(async (req, res) => {
     const headers = {
@@ -37,24 +39,29 @@ createServer(async (req, res) => {
             abortController.abort();
         });
 
-        await Readable.toWeb(createReadStream(filename))
+        const readStream = createReadStream(filename, { start: currentPosition })
+        await Readable.toWeb(readStream)
         .pipeThrough(
             Transform.toWeb(csvtojson({
-                headers: ['title', 'description', 'url']
+                headers: ['title', 'description', 'url'],
+                output: 'line'
             }))
         )
         .pipeThrough(
             new TransformStream({
                 async transform(jsonLine, controller) {
-                    const data = JSON.parse(Buffer.from(jsonLine));
+                    const data = Buffer.from(jsonLine);
+                    const csvFields = data.toString().split(',');
+                    const lineBytesLength = data.length;
+                    const message = JSON.stringify({
+                        title: csvFields[0],
+                        description: csvFields[1],
+                        url: csvFields[10]         
+                    }).concat("\n");
                     counter++;
-                    controller.enqueue(
-                        JSON.stringify({
-                            title: data.title,
-                            description: data.description,
-                            url: data.url_anime         
-                        }).concat("\n")
-                    );
+                    await setTimeout(1000);
+                    controller.enqueue(message);
+                    currentPosition += lineBytesLength;
                 }
             })
         )
@@ -70,4 +77,4 @@ createServer(async (req, res) => {
     }
 })
 .listen(PORT)
-.on("listening", () => console.log("Server is running at", PORT))
+.on("listening", () => console.log("Server is running at", PORT));
